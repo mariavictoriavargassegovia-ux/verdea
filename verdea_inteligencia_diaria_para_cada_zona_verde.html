@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verdea — Inteligencia diaria para cada zona verde</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Space Grotesk & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Space Grotesk', 'system-ui', 'sans-serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            bosque: '#12382B',
+            hoja: '#1F6B4A',
+            brote: '#8CC63F',
+            niebla: '#F4F7F2',
+            alerta: '#B4531A',
+            botanico: '#EBF4EC',
+            musgo: '#DFECE1',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      --verdea-bosque: #12382B;
+      --verdea-hoja: #1F6B4A;
+      --verdea-brote: #8CC63F;
+      --verdea-niebla: #F4F7F2;
+      --verdea-alerta: #B4531A;
+      --verdea-fondo: #EBF4EC;
+    }
+
+    * {
+      -webkit-tap-highlight-color: rgba(31, 107, 74, 0.16);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: var(--verdea-fondo);
+      background-image: radial-gradient(rgba(31, 107, 74, 0.16) 1px, transparent 1px);
+      background-size: 20px 20px;
+      color: var(--verdea-bosque);
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+    }
+
+    .verdea-card {
+      background-color: #FFFFFF;
+      border: 1px solid rgba(18, 56, 43, 0.12);
+      box-shadow: 0 8px 20px -10px rgba(18, 56, 43, 0.14);
+    }
+
+    .verdea-pill-active {
+      background: linear-gradient(135deg, #1F6B4A 0%, #12382B 100%);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px -3px rgba(18, 56, 43, 0.32);
+    }
+
+    .verdea-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .verdea-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .verdea-scroll::-webkit-scrollbar-thumb {
+      background: rgba(31, 107, 74, 0.25);
+      border-radius: 9999px;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Marco realista de teléfono en escritorio y adaptable a pantalla completa en móvil */
+    .phone-frame {
+      width: 100%;
+      max-width: 396px;
+      height: 852px;
+      max-height: 94vh;
+      border-radius: 44px;
+      box-shadow:
+        0 24px 48px -12px rgba(18, 56, 43, 0.28),
+        0 0 0 10px #12382B,
+        0 0 0 12px rgba(31, 107, 74, 0.35);
+    }
+
+    @media (max-width: 460px) {
+      body {
+        padding: 0;
+        background: var(--verdea-fondo);
+      }
+      .phone-frame {
+        max-width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .desktop-hint {
+        display: none !important;
+      }
+    }
+
+    @keyframes sheetSlideUp {
+      from { transform: translateY(24px); opacity: 0.7; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .sheet-enter {
+      animation: sheetSlideUp 0.2s ease-out;
+    }
+
+    @keyframes pingMarker {
+      0% { transform: scale(1); opacity: 0.75; }
+      75% { transform: scale(1.55); opacity: 0; }
+      100% { transform: scale(1.55); opacity: 0; }
+    }
+    .marker-ping {
+      animation: pingMarker 2s infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-2 sm:p-5">
+
+  <!-- Indicador superior en escritorio -->
+  <div class="desktop-hint mb-2.5 flex items-center gap-2 text-xs font-medium text-bosque bg-white/95 px-3.5 py-1.5 rounded-full border border-bosque/15 shadow-xs">
+    <span class="w-2 h-2 rounded-full bg-brote"></span>
+    <span class="font-display font-bold">verdea</span>
+    <span class="text-bosque/40">·</span>
+    <span>Prototipo móvil interactivo · Sensores cenitales 360°</span>
+  </div>
+
+  <!-- CONTENEDOR PRINCIPAL DEL TELÉFONO -->
+  <div class="phone-frame bg-botanico relative overflow-hidden flex flex-col justify-between">
+
+    <!-- Barra de estado superior -->
+    <div class="bg-bosque text-white px-6 pt-2.5 pb-1.5 flex items-center justify-between text-xs font-semibold shrink-0 z-20">
+      <span id="status-clock" class="font-display tracking-tight">09:41</span>
+      <div class="w-24 h-5 bg-black/95 rounded-full flex items-center justify-end px-2 border border-white/10">
+        <span class="w-2 h-2 rounded-full bg-brote"></span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="text-[10px] font-semibold text-brote">360°</span>
+        <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M2 20h20V4L2 20z" />
+        </svg>
+        <div class="w-5 h-2.5 border border-white/75 rounded-[3px] p-[1px] flex items-center">
+          <div class="w-full h-full bg-brote rounded-[1px]"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CABECERA VERDEA -->
+    <header class="bg-bosque text-white px-4 pt-1.5 pb-3 shrink-0 z-20 border-b border-white/10">
+      <div class="flex items-center justify-between gap-2">
+        <button type="button" onclick="selectTab('home')" class="flex items-center gap-2.5 text-left focus:outline-none cursor-pointer">
+          <div class="w-8 h-8 rounded-xl bg-hoja/80 border border-brote/50 flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" viewBox="0 0 32 32" fill="none">
+              <path d="M16 5.5A10.5 10.5 0 1 1 6.7 11" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" />
+              <circle cx="7.4" cy="11.2" r="3" fill="#8CC63F" />
+              <path d="M16 9.5C12.8 12.2 11.5 16.5 16 22.5C20.5 16.5 19.2 12.2 16 9.5Z" fill="#8CC63F" />
+              <path d="M16 12.5V21M16 15.5L13.4 13.5M16 14.2L18.5 12.4" stroke="#12382B" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-display font-bold text-lg tracking-tight leading-none text-white">verdea</span>
+              <span class="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-brote/20 text-brote border border-brote/30">
+                Cenital 360°
+              </span>
+            </div>
+            <p class="text-[10px] text-white/75 mt-0.5 truncate max-w-[175px]">
+              Privacidad cenital · Sin rostros ni personas
+            </p>
+          </div>
+        </button>
+
+        <!-- Selector rápido Ayuntamiento / Particular -->
+        <div class="bg-[#0B241B] p-0.5 rounded-xl border border-white/15 flex items-center text-[11px] font-semibold shrink-0">
+          <button type="button" id="hdr-btn-municipal" onclick="setProfileMode('municipal')"
+            class="px-2.5 py-1 rounded-[9px] transition-all cursor-pointer">
+            Ayto.
+          </button>
+          <button type="button" id="hdr-btn-private" onclick="setProfileMode('private')"
+            class="px-2.5 py-1 rounded-[9px] transition-all cursor-pointer">
+            Part.
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ÁREA PRINCIPAL SCROLLABLE (Sin capas bloqueantes) -->
+    <main id="verdea-main-scroll" class="flex-1 overflow-y-auto verdea-scroll bg-botanico relative">
+
+      <!-- =============================================================== -->
+      <!-- PESTAÑA 1: INICIO (Índice de salud verde + métricas + prioridades) -->
+      <!-- =============================================================== -->
+      <section id="tab-view-home" class="p-4 space-y-3.5">
+
+        <!-- Saludo + pasada 360° + Datos de ejemplo -->
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h1 class="font-display text-xl font-bold text-bosque leading-tight">Buenos días</h1>
+            <p id="home-pass-text" class="text-xs font-medium text-bosque/75 mt-0.5">
+              Jueves 19 nov · Pasada 360° a las 07:00
+            </p>
+          </div>
+          <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-white text-bosque/80 border border-bosque/15 shrink-0">
+            Datos de ejemplo
+          </span>
+        </div>
+
+        <!-- Selector Ayuntamiento / Particular -->
+        <div class="verdea-card rounded-2xl p-1.5 grid grid-cols-2 gap-1.5">
+          <button type="button" id="card-mode-municipal" onclick="setProfileMode('municipal')"
+            class="verdea-pill-active py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+            Ayuntamiento
+          </button>
+          <button type="button" id="card-mode-private" onclick="setProfileMode('private')"
+            class="py-2 px-3 rounded-xl text-xs font-semibold text-bosque/75 hover:text-bosque flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+            Particular
+          </button>
+        </div>
+
+        <!-- Tarjeta Índice de Salud Verde (Anillo + Barras L-D) -->
+        <div class="verdea-card rounded-3xl p-4 space-y-3.5">
+          <div class="flex items-center justify-between gap-2">
+            <span id="home-context-badge" class="text-[11px] font-semibold text-hoja bg-niebla px-2.5 py-1 rounded-full border border-hoja/15">
+              Jardín del Turia · Red urbana
+            </span>
+            <span class="text-[10px] font-semibold text-bosque/60">Datos de ejemplo</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="relative w-24 h-24 shrink-0 flex items-center justify-center">
+              <svg class="w-24 h-24 -rotate-90" viewBox="0 0 92 92">
+                <circle cx="46" cy="46" r="38" fill="none" stroke="#E2ECE4" stroke-width="9"></circle>
+                <circle id="health-ring" cx="46" cy="46" r="38" fill="none" stroke="#1F6B4A" stroke-width="9"
+                  stroke-linecap="round" stroke-dasharray="238.76" stroke-dashoffset="42.98"></circle>
+              </svg>
+              <span id="health-score-num" class="font-display text-2xl font-bold text-bosque absolute">82</span>
+            </div>
+            <div class="min-w-0 flex-1 space-y-1">
+              <p class="text-xs font-medium text-bosque/70">Índice de salud verde</p>
+              <h2 id="health-status-label" class="font-display text-lg font-bold text-bosque leading-snug">
+                Bueno · +3 esta semana
+              </h2>
+              <p class="text-[11px] text-bosque/65">Sensor cenital sobre mobiliario urbano</p>
+            </div>
+          </div>
+
+          <!-- Barras semanales L M X J V S D -->
+          <div class="pt-1 space-y-1.5">
+            <div id="home-week-bars" class="grid grid-cols-7 gap-2 h-16 items-end px-1"></div>
+            <div class="grid grid-cols-7 gap-2 text-center text-[11px] font-bold text-bosque/70 px-1">
+              <span>L</span><span>M</span><span>X</span><span class="text-bosque">J</span><span>V</span><span>S</span><span>D</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cuadrícula de 4 métricas clave -->
+        <div id="home-metrics-grid" class="grid grid-cols-2 gap-2.5"></div>
+
+        <!-- Prioridades de hoy -->
+        <div class="verdea-card rounded-3xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <h2 class="font-display text-base font-bold text-bosque">Prioridades de hoy</h2>
+              <span id="home-prio-badge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-alerta/15 text-alerta">7</span>
+            </div>
+            <button type="button" onclick="selectTab('detections')" class="text-xs font-bold text-hoja hover:text-bosque cursor-pointer">
+              Ver todo →
+            </button>
+          </div>
+          <div id="home-priorities-container" class="space-y-2.5"></div>
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- PESTAÑA 2: MAPA DE INCIDENCIAS                                  -->
+      <!-- =============================================================== -->
+      <section id="tab-view-map" class="hidden p-4 space-y-3.5">
+
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h1 class="font-display text-xl font-bold text-bosque leading-tight">Mapa de incidencias</h1>
+            <p id="map-summary-text" class="text-xs font-medium text-bosque/75 mt-0.5">
+              7 detecciones · 24 sensores
+            </p>
+          </div>
+          <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-white text-bosque/80 border border-bosque/15">
+            360° Cenital
+          </span>
+        </div>
+
+        <!-- Filtros por categoría -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+          <button type="button" data-map-cat="all" onclick="setMapCategory('all')" class="map-cat-btn">Todas</button>
+          <button type="button" data-map-cat="riego" onclick="setMapCategory('riego')" class="map-cat-btn">Riego</button>
+          <button type="button" data-map-cat="replantar" onclick="setMapCategory('replantar')" class="map-cat-btn">Replantar</button>
+          <button type="button" data-map-cat="plagas" onclick="setMapCategory('plagas')" class="map-cat-btn">Plagas</button>
+        </div>
+
+        <!-- Lienzo interactivo del parque con marcadores numerados -->
+        <div class="verdea-card rounded-3xl p-2.5">
+          <div class="relative w-full h-56 rounded-2xl overflow-hidden border border-bosque/12 bg-[#DCEAD9]">
+            <svg viewBox="0 0 360 220" class="w-full h-full block">
+              <rect width="360" height="220" fill="#DDEBD9" />
+              <path d="M0 112 Q 110 92, 195 114 T 360 106" fill="none" stroke="#F4F7F2" stroke-width="14" />
+              <path d="M168 0 Q 158 110, 178 220" fill="none" stroke="#F4F7F2" stroke-width="10" />
+              <rect x="24" y="20" width="122" height="72" rx="18" fill="#B7D7B2" />
+              <rect x="204" y="20" width="132" height="70" rx="18" fill="#AED2A9" />
+              <rect x="26" y="132" width="126" height="70" rx="18" fill="#B8D8B3" />
+              <rect x="200" y="128" width="136" height="74" rx="18" fill="#A9CE9F" />
+            </svg>
+            <div id="map-pins-layer" class="absolute inset-0"></div>
+          </div>
+        </div>
+
+        <!-- Tarjeta de detalle del marcador activo -->
+        <div id="map-active-card" class="verdea-card rounded-3xl p-4 space-y-3"></div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- PESTAÑA 3: DETECCIONES IA                                       -->
+      <!-- =============================================================== -->
+      <section id="tab-view-detections" class="hidden p-4 space-y-3.5">
+
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h1 class="font-display text-xl font-bold text-bosque leading-tight">Detecciones</h1>
+            <p id="detections-sub-label" class="text-xs font-medium text-bosque/75 mt-0.5">
+              Hoy · 7 nuevas
+            </p>
+          </div>
+          <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-white text-bosque/80 border border-bosque/15">
+            Datos de ejemplo
+          </span>
+        </div>
+
+        <!-- Alternador Hoy / 7 días + Resueltas -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="bg-white p-1 rounded-xl border border-bosque/12 flex items-center text-xs">
+            <button type="button" id="det-btn-today" onclick="setDetectionPeriod('today')">Hoy</button>
+            <button type="button" id="det-btn-7d" onclick="setDetectionPeriod('7d')">7 días</button>
+          </div>
+          <button type="button" id="det-btn-resolved" onclick="toggleDetectionResolvedTab()">
+            <span>Resueltas</span>
+            <span id="det-resolved-count" class="px-1.5 py-0.5 rounded-full text-[10px] bg-niebla text-bosque font-bold">0</span>
+          </button>
+        </div>
+
+        <!-- Lista de tarjetas de detección -->
+        <div id="detections-cards-list" class="space-y-2.5"></div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- PESTAÑA 4: ASISTENTE VERDEA                                     -->
+      <!-- =============================================================== -->
+      <section id="tab-view-assistant" class="hidden p-4 space-y-3.5">
+
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h1 class="font-display text-xl font-bold text-bosque leading-tight">Asistente Verdea</h1>
+            <p class="text-xs font-medium text-bosque/75 mt-0.5">
+              Pregúntame lo que quieras sobre tus plantas
+            </p>
+          </div>
+          <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-brote/25 text-bosque">
+            IA Agronómica
+          </span>
+        </div>
+
+        <!-- Hilo de conversación -->
+        <div id="assistant-chat-thread" class="space-y-3"></div>
+
+        <!-- Sugerencias rápidas -->
+        <div class="flex flex-wrap gap-1.5 pt-1">
+          <button type="button" onclick="askAssistant('¿Qué planto en noviembre en un balcón orientado al sur?')"
+            class="px-3 py-1.5 rounded-full bg-white hover:bg-niebla border border-bosque/15 text-[11px] font-semibold text-bosque cursor-pointer">
+            Balcón sur en noviembre
+          </button>
+          <button type="button" onclick="askAssistant('¿Cómo resuelvo la calva de 4 m² en la zona B-3?')"
+            class="px-3 py-1.5 rounded-full bg-white hover:bg-niebla border border-bosque/15 text-[11px] font-semibold text-bosque cursor-pointer">
+            Calva 4 m² zona B-3
+          </button>
+        </div>
+
+        <!-- Barra de entrada de texto y voz -->
+        <form onsubmit="handleAssistantForm(event)" class="verdea-card rounded-2xl p-1.5 flex items-center gap-1.5">
+          <input id="assistant-text-input" type="text" autocomplete="off"
+            placeholder="Escribe o pregunta por voz..."
+            class="flex-1 bg-transparent px-3 py-2 text-xs font-medium text-bosque placeholder-bosque/50 focus:outline-none" />
+          <button type="button" onclick="simulateVoicePrompt()" title="Dictar por voz"
+            class="w-9 h-9 rounded-xl bg-niebla hover:bg-[#DFECE1] text-hoja flex items-center justify-center shrink-0 cursor-pointer">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+            </svg>
+          </button>
+          <button type="submit"
+            class="px-3.5 py-2 rounded-xl bg-hoja hover:bg-bosque text-white text-xs font-bold shrink-0 cursor-pointer">
+            Enviar
+          </button>
+        </form>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- PESTAÑA 5: CONSEJOS (Temporada, Xerojardinería y Cuidados)     -->
+      <!-- =============================================================== -->
+      <section id="tab-view-tips" class="hidden p-4 space-y-3.5">
+
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h1 class="font-display text-xl font-bold text-bosque leading-tight">Consejos y noticias</h1>
+            <p class="text-xs font-medium text-bosque/75 mt-0.5">
+              Seleccionado para tu zona y temporada
+            </p>
+          </div>
+          <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-white text-bosque/80 border border-bosque/15">
+            Datos de ejemplo
+          </span>
+        </div>
+
+        <!-- Consejo del día · Noviembre -->
+        <div class="verdea-card rounded-3xl p-4 space-y-2.5 border-l-4 border-l-brote">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-brote/20 text-bosque">
+              Consejo del día · Noviembre
+            </span>
+            <span class="text-[11px] font-medium text-bosque/60">Temporada</span>
+          </div>
+          <h2 class="font-display text-base font-bold text-bosque leading-snug">
+            Es buen momento para plantar bulbos de primavera: tulipanes, narcisos y jacintos.
+          </h2>
+          <p class="text-xs text-bosque/75 leading-relaxed">
+            Plantar a una profundidad de 2 a 3 veces el tamaño del bulbo en suelo bien drenado permite que enraícen con el fresco otoñal y broten con fuerza en primavera.
+          </p>
+          <div class="pt-1 flex items-center justify-between gap-2">
+            <button type="button" onclick="openTipGuide('bulbos')"
+              class="px-3 py-1.5 rounded-xl bg-hoja hover:bg-bosque text-white text-xs font-semibold transition-colors cursor-pointer">
+              Leer guía completa
+            </button>
+            <button type="button" onclick="askAssistant('¿Cómo plantar bulbos de primavera como tulipanes, narcisos y jacintos en noviembre?')"
+              class="text-xs font-semibold text-hoja hover:text-bosque cursor-pointer">
+              Consultar al asistente →
+            </button>
+          </div>
+        </div>
+
+        <!-- Guías con lector desplegable -->
+        <div id="tips-guides-list" class="space-y-3">
+          <!-- Generado por JS -->
+        </div>
+
+        <!-- Lector desplegable de guía seleccionada -->
+        <div id="tip-reader-panel" class="hidden verdea-card rounded-3xl p-4 space-y-2.5 border border-hoja/30 bg-[#FCFEFB]">
+          <!-- Generado por JS -->
+        </div>
+      </section>
+
+      <!-- =============================================================== -->
+      <!-- PESTAÑA 6: HOY (Notificaciones exclusivas del día)             -->
+      <!-- =============================================================== -->
+      <section id="tab-view-today" class="hidden p-4 space-y-3.5">
+
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <h1 class="font-display text-xl font-bold text-bosque leading-tight">Hoy</h1>
+            <p id="today-notices-status" class="text-xs font-semibold text-alerta mt-0.5">
+              3 sin leer · Notificaciones del día
+            </p>
+          </div>
+          <button type="button" onclick="markAllTodayNoticesRead()"
+            class="px-3 py-1.5 rounded-xl bg-white hover:bg-niebla border border-bosque/15 text-xs font-semibold text-hoja hover:text-bosque transition-colors cursor-pointer shrink-0">
+            Marcar como leídas
+          </button>
+        </div>
+
+        <!-- Resumen diario tras la pasada 360° -->
+        <div class="verdea-card rounded-2xl p-3.5 flex items-center justify-between gap-3">
+          <div>
+            <p class="font-display text-sm font-bold text-bosque">Resumen diario</p>
+            <p class="text-xs text-bosque/70">Cada día a las 08:00, tras la pasada 360°</p>
+          </div>
+          <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-niebla text-hoja border border-hoja/20 shrink-0">
+            08:00 · 360°
+          </span>
+        </div>
+
+        <!-- Listado exclusivo de notificaciones de HOY -->
+        <div id="today-notifications-list" class="space-y-2.5">
+          <!-- Generado por JS -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- =============================================================== -->
+    <!-- BARRA INFERIOR DE 6 PESTAÑAS                                    -->
+    <!-- =============================================================== -->
+    <nav class="bg-white border-t border-bosque/12 px-1 pt-1.5 pb-3.5 grid grid-cols-6 gap-0.5 shrink-0 z-20">
+      <!-- 1. Inicio -->
+      <button type="button" data-tab-btn="home" onclick="selectTab('home')"
+        class="bottom-nav-tab flex flex-col items-center justify-center py-1 rounded-xl transition-colors cursor-pointer">
+        <svg class="w-4 h-4 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5z"></path>
+        </svg>
+        <span class="text-[9.5px] leading-tight">Inicio</span>
+      </button>
+
+      <!-- 2. Mapa -->
+      <button type="button" data-tab-btn="map" onclick="selectTab('map')"
+        class="bottom-nav-tab flex flex-col items-center justify-center py-1 rounded-xl transition-colors cursor-pointer">
+        <svg class="w-4 h-4 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+          <line x1="8" y1="2" x2="8" y2="18"></line>
+          <line x1="16" y1="6" x2="16" y2="22"></line>
+        </svg>
+        <span class="text-[9.5px] leading-tight">Mapa</span>
+      </button>
+
+      <!-- 3. Detecciones -->
+      <button type="button" data-tab-btn="detections" onclick="selectTab('detections')"
+        class="bottom-nav-tab relative flex flex-col items-center justify-center py-1 rounded-xl transition-colors cursor-pointer">
+        <div class="relative">
+          <svg class="w-4 h-4 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span id="nav-det-badge"
+            class="absolute -top-0.5 -right-2 min-w-[14px] h-[14px] px-1 rounded-full bg-alerta text-white text-[9px] font-bold flex items-center justify-center">
+            7
+          </span>
+        </div>
+        <span class="text-[9.5px] leading-tight">Detecciones</span>
+      </button>
+
+      <!-- 4. Asistente -->
+      <button type="button" data-tab-btn="assistant" onclick="selectTab('assistant')"
+        class="bottom-nav-tab flex flex-col items-center justify-center py-1 rounded-xl transition-colors cursor-pointer">
+        <svg class="w-4 h-4 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3l1.8 5.4L19 10.2l-5.2 1.8L12 17.5l-1.8-5.5L5 10.2l5.2-1.8L12 3z"></path>
+        </svg>
+        <span class="text-[9.5px] leading-tight">Asistente</span>
+      </button>
+
+      <!-- 5. Consejos -->
+      <button type="button" data-tab-btn="tips" onclick="selectTab('tips')"
+        class="bottom-nav-tab flex flex-col items-center justify-center py-1 rounded-xl transition-colors cursor-pointer">
+        <svg class="w-4 h-4 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        </svg>
+        <span class="text-[9.5px] leading-tight">Consejos</span>
+      </button>
+
+      <!-- 6. Hoy -->
+      <button type="button" data-tab-btn="today" onclick="selectTab('today')"
+        class="bottom-nav-tab relative flex flex-col items-center justify-center py-1 rounded-xl transition-colors cursor-pointer">
+        <div class="relative">
+          <svg class="w-4 h-4 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <span id="nav-today-unread-badge"
+            class="absolute -top-0.5 -right-2 min-w-[14px] h-[14px] px-1 rounded-full bg-alerta text-white text-[9px] font-bold flex items-center justify-center">
+            3
+          </span>
+        </div>
+        <span class="text-[9.5px] leading-tight">Hoy</span>
+      </button>
+    </nav>
+
+    <!-- =============================================================== -->
+    <!-- MODAL INTERACTIVO: DETALLE DE DETECCIÓN / RESOLVER / CREAR TAREA -->
+    <!-- =============================================================== -->
+    <div id="verdea-modal-overlay" onclick="handleModalBackdropClick(event)"
+      class="hidden fixed inset-0 bg-bosque/60 backdrop-blur-[2px] z-40 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div id="verdea-modal-card"
+        class="bg-white w-full max-w-[392px] rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl border border-bosque/12 space-y-4 max-h-[85vh] overflow-y-auto verdea-scroll sheet-enter">
+        <!-- Generado por JS -->
+      </div>
+    </div>
+
+    <!-- TOAST DE CONFIRMACIÓN -->
+    <div id="verdea-toast-banner"
+      class="pointer-events-none opacity-0 -translate-y-2 transition-all duration-200 fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[360px] bg-bosque text-white px-4 py-2.5 rounded-2xl shadow-lg border border-brote/30 flex items-center gap-2 text-xs font-medium">
+      <span class="w-2 h-2 rounded-full bg-brote shrink-0"></span>
+      <span id="verdea-toast-message">Acción realizada</span>
+    </div>
+
+  </div>
+
+  <script>
+    // =========================================================================
+    // ESTADO CENTRALIZADO DEL PROTOTIPO VERDEA
+    // =========================================================================
+    const verdeaApp = {
+      profile: 'municipal', // 'municipal' | 'private'
+      activeTab: 'home', // 'home' | 'map' | 'detections' | 'assistant' | 'notices'
+      mapCategory: 'all', // 'all' | 'riego' | 'replantar' | 'plagas'
+      selectedPinId: 'det-1',
+      detectionPeriod: 'today', // 'today' | '7d'
+      showingResolved: false,
+      noticeCategory: 'all', // 'all' | 'riego' | 'replantar' | 'sistema'
+      openTipId: null,
+      createdTasks: [],
+
+      guides: [
+        {
+          id: 'bulbos',
+          category: 'TEMPORADA · NOVIEMBRE',
+          readTime: 'Noviembre',
+          title: 'Bulbos de primavera: tulipanes, narcisos y jacintos',
+          summary: 'Cuándo y cómo plantarlos para una floración escalonada y resistente.',
+          body: 'En noviembre los suelos conservan temperatura suave tras el verano y favorecen el enraizamiento antes del frío invernal. Combina tulipanes, narcisos y jacintos agrupando especies con requerimientos hídricos similares y evitando encharcamientos en el bulbo.'
+        },
+        {
+          id: 'xerojardineria',
+          category: 'XEROJARDINERÍA',
+          readTime: '4 min de lectura',
+          title: 'Jardines mediterráneos que casi no necesitan riego',
+          summary: 'Qué especies elegir y cómo agruparlas según su necesidad de agua.',
+          body: 'Agrupa plantas por demanda hídrica en sectores diferenciados: especies tapizantes de bajo riego como Lippia nodiflora en zonas de paso y aromáticas o arbustos mediterráneos en áreas soleadas. Un sustrato drenante y acolchado mineral reduce la evaporación diaria.'
+        },
+        {
+          id: 'cuidados-invierno',
+          category: 'CUIDADOS',
+          readTime: '3 min de lectura',
+          title: 'Cómo preparar el césped para el invierno',
+          summary: 'Siega, aireado y abonado otoñal para que llegue fuerte a la primavera.',
+          body: 'Eleva ligeramente la altura de corte para proteger la corona radicular, realiza un aireado suave si hay compactación y ajusta los ciclos de riego al descenso de evapotranspiración. Revisa calvas y encharcamientos detectados en la pasada cenital de 360°.'
+        }
+      ],
+
+      todayNotifications: [
+        {
+          id: 'today-1',
+          time: '08:00',
+          category: 'resumen',
+          title: 'Resumen diario · Pasada 360°',
+          detail: 'Cada día a las 08:00, tras la pasada 360°: índice de salud verde 82 (+3 esta semana) con privacidad cenital sin rostros ni personas.',
+          badge: 'Resumen 08:00',
+          unread: true,
+          targetTab: 'home'
+        },
+        {
+          id: 'today-2',
+          time: '07:04',
+          category: 'riego',
+          title: 'Fuga detectada A-12',
+          detail: 'Consumo anómalo de agua en el sector 3 del Jardín del Turia.',
+          badge: 'Fuga A-12',
+          unread: true,
+          targetTab: 'detections'
+        },
+        {
+          id: 'today-3',
+          time: '07:02',
+          category: 'replantar',
+          title: 'Nueva calva de 4 m² en Zona B-3',
+          detail: 'El asistente sugiere replantar con Lippia nodiflora (tapizante, pisable y de poco riego).',
+          badge: 'Zona B-3',
+          unread: true,
+          targetTab: 'assistant'
+        },
+        {
+          id: 'today-4',
+          time: '07:00',
+          category: 'pasada',
+          title: 'Pasada 360° completada',
+          detail: '24 sensores · 12,4 ha analizadas en ángulo cenital sin almacenamiento de personas.',
+          badge: '360° OK',
+          unread: false,
+          targetTab: 'map'
+        }
+      ],
+
+      dataByProfile: {
+        municipal: {
+          passInfo: 'Jueves 19 nov · Pasada 360° a las 07:00',
+          contextTitle: 'Jardín del Turia · Red urbana',
+          healthScore: 82,
+          healthTrend: 'Bueno · +3 esta semana',
+          weekBars: [58, 66, 48, 72, 80, 75, 88],
+          metrics: [
+            { key: 'area', value: '12,4 ha', label: 'Superficie monitorizada' },
+            { key: 'detections', value: '7', label: 'Detecciones hoy' },
+            { key: 'moisture', value: '31%', label: 'Humedad media del suelo' },
+            { key: 'sensors', value: '24/24', label: 'Sensores activos' }
+          ],
+          detections: [
+            {
+              id: 'det-1',
+              num: 1,
+              category: 'riego',
+              priority: 'alta',
+              priorityTag: 'PRIORIDAD ALTA',
+              iaPct: 96,
+              title: 'Fuga en aspersor A-12',
+              place: 'Jardín del Turia Tramo 7',
+              when: 'hace 2 h',
+              period: 'today',
+              status: 'active',
+              actionText: 'Cerrar sector 3 y revisar boquilla',
+              notes: 'Sensor cenital en poste cercano detecta acumulación hídrica persistente y variación térmica tras el riego matinal.',
+              mapsQuery: '39.4765,-0.3652',
+              thumbType: 'leak',
+              pos: { x: 24, y: 27 }
+            },
+            {
+              id: 'det-2',
+              num: 2,
+              category: 'replantar',
+              priority: 'media',
+              priorityTag: 'PRIORIDAD MEDIA',
+              iaPct: 91,
+              title: 'Calva de 4 m²',
+              place: 'Parque de barrio B-3',
+              when: 'hace 3 h',
+              period: 'today',
+              status: 'active',
+              actionText: 'Replantar con Lippia o césped de bajo riego',
+              notes: 'Superficie de 4 m² sin cobertura vegetal con paso frecuente. Sustrato apto para tapizante resistente.',
+              mapsQuery: '39.4698,-0.3784',
+              thumbType: 'bare',
+              pos: { x: 27, y: 65 }
+            },
+            {
+              id: 'det-3',
+              num: 3,
+              category: 'riego',
+              priority: 'media',
+              priorityTag: 'PRIORIDAD MEDIA',
+              iaPct: 88,
+              title: 'Estrés hídrico en césped',
+              place: 'Plaza mayor. Parterre 2',
+              when: 'hace 4 h',
+              period: 'today',
+              status: 'active',
+              actionText: 'Aumentar riego nocturno 10 min',
+              notes: 'Descenso de vigor en zona de sol directo y humedad por debajo del umbral óptimo.',
+              mapsQuery: '39.4741,-0.3762',
+              thumbType: 'dry',
+              pos: { x: 66, y: 64 }
+            },
+            {
+              id: 'det-4',
+              num: 4,
+              category: 'plagas',
+              priority: 'review',
+              priorityTag: 'REVISAR',
+              iaPct: 79,
+              title: 'Posible plaga en setos',
+              place: 'Jardín del Turia Tramo 5',
+              when: 'hace 5 h',
+              period: 'today',
+              status: 'active',
+              actionText: 'Inspección visual: posible pulgón',
+              notes: 'Alteración en brotes jóvenes del seto detectada en la pasada cenital de las 07:00.',
+              mapsQuery: '39.4782,-0.3610',
+              thumbType: 'pest',
+              pos: { x: 68, y: 26 }
+            },
+            {
+              id: 'det-5',
+              num: 5,
+              category: 'replantar',
+              priority: 'review',
+              priorityTag: 'REVISAR',
+              iaPct: 77,
+              title: 'Árbol con hojas amarillas',
+              place: 'Avenida Alcorque 41',
+              when: 'hace 6 h',
+              period: 'today',
+              status: 'active',
+              actionText: 'Revisar alcorque y drenaje del sustrato',
+              notes: 'Amarilleamiento foliar parcial en zona baja de copa.',
+              mapsQuery: '39.4712,-0.3715',
+              thumbType: 'chlorosis',
+              pos: { x: 48, y: 46 }
+            },
+            {
+              id: 'det-6',
+              num: 6,
+              category: 'riego',
+              priority: 'media',
+              priorityTag: 'PRIORIDAD MEDIA',
+              iaPct: 84,
+              title: 'Cobertura parcial en difusor N-4',
+              place: 'Jardín del Turia Tramo 7 · Norte',
+              when: 'hace 6 h',
+              period: 'today',
+              status: 'active',
+              actionText: 'Ajustar alcance del aspersor',
+              notes: 'Franja estrecha sin cobertura completa tras la pasada matinal.',
+              mapsQuery: '39.4759,-0.3668',
+              thumbType: 'dry',
+              pos: { x: 37, y: 34 }
+            },
+            {
+              id: 'det-7',
+              num: 7,
+              category: 'plagas',
+              priority: 'review',
+              priorityTag: 'REVISAR',
+              iaPct: 75,
+              title: 'Humedad superficial en parterre sur',
+              place: 'Plaza mayor. Parterre 4',
+              when: 'hace 7 h',
+              period: 'today',
+              status: 'active',
+              actionText: 'Comprobar ventilación y drenaje',
+              notes: 'Zona sombreada con humedad retenida tras el ciclo de madrugada.',
+              mapsQuery: '39.4736,-0.3750',
+              thumbType: 'pest',
+              pos: { x: 80, y: 54 }
+            },
+            {
+              id: 'det-8',
+              num: 8,
+              category: 'replantar',
+              priority: 'media',
+              priorityTag: 'PRIORIDAD MEDIA',
+              iaPct: 90,
+              title: 'Reposición de arbusto seco',
+              place: 'Parque de barrio B-3 · Norte',
+              when: 'hace 3 días',
+              period: '7d',
+              status: 'active',
+              actionText: 'Replantar con romero de bajo riego',
+              notes: 'Ejemplar sin brote activo en los últimos días.',
+              mapsQuery: '39.4705,-0.3790',
+              thumbType: 'bare',
+              pos: { x: 18, y: 78 }
+            }
+          ]
+        },
+        private: {
+          passInfo: 'Jueves 19 nov · Pasada 360° a las 07:15',
+          contextTitle: 'Jardín privado & Balcón Sur · Valencia',
+          healthScore: 86,
+          healthTrend: 'Muy bueno · +4 esta semana',
+          weekBars: [70, 74, 68, 80, 82, 85, 86],
+          metrics: [
+            { key: 'area', value: '420 m²', label: 'Superficie monitorizada' },
+            { key: 'detections', value: '2', label: 'Detecciones hoy' },
+            { key: 'moisture', value: '36%', label: 'Humedad media del suelo' },
+            { key: 'sensors', value: '3/3', label: 'Sensores activos' }
+          ],
+          detections: [
+            {
+              id: 'priv-1',
+              num: 1,
+              category: 'riego',
+              priority: 'alta',
+              priorityTag: 'PRIORIDAD ALTA',
+              iaPct: 93,
+              title: 'Goteo desigual en macetero sur',
+              place: 'Balcón 2 m² · Orientación sur (Valencia)',
+              when: 'hace 1 h',
+              period: 'today',
+              status: 'active',
+              actionText: 'Regar solo cuando el sustrato esté seco',
+              notes: 'Lavanda aromática, caléndula y pensamientos con buena insolación; evitar encharcar macetas.',
+              mapsQuery: '39.4699,-0.3763',
+              thumbType: 'leak',
+              pos: { x: 30, y: 42 }
+            },
+            {
+              id: 'priv-2',
+              num: 2,
+              category: 'replantar',
+              priority: 'media',
+              priorityTag: 'PRIORIDAD MEDIA',
+              iaPct: 89,
+              title: 'Hueco de 4 m² en zona B-3',
+              place: 'Zona B-3 · Jardín y tránsito',
+              when: 'hace 3 h',
+              period: 'today',
+              status: 'active',
+              actionText: 'Replantar con Lippia nodiflora',
+              notes: 'Especie tapizante, pisable y de bajo riego para zonas con tránsito.',
+              mapsQuery: '39.4695,-0.3770',
+              thumbType: 'bare',
+              pos: { x: 68, y: 58 }
+            }
+          ]
+        }
+      },
+
+      chatMessages: [
+        {
+          sender: 'user',
+          text: 'Tengo un balcón de 2 m² orientado al sur en Valencia. ¿Qué planto ahora en noviembre?'
+        },
+        {
+          sender: 'bot',
+          text: 'Con sol directo y clima mediterráneo suave, noviembre es buen momento para plantas resistentes y de bajo riego:\n• Lavanda aromática, aguanta el sol y poca agua\n• Caléndula florece en invierno, colores cálidos\n• Pensamientos ideales en macetas para temporada fría\n\nRiega solo cuando el sustrato esté seco.',
+          taskAction: null
+        },
+        {
+          sender: 'user',
+          text: '¿Y para la calva que detectaste en la zona B-3?'
+        },
+        {
+          sender: 'bot',
+          text: 'Para 4 m² con mucho tránsito, te propongo Lippia nodiflora: tapizante, pisable y de poco riego.\n\n¿Creo la tarea de replantado?',
+          taskAction: {
+            id: 'task-b3-lippia',
+            label: 'Crear tarea de replantado',
+            taskTitle: 'Replantar 4 m² en zona B-3 con Lippia nodiflora'
+          }
+        }
+      ],
+
+      dailyNotices: [
+        {
+          id: 'n-1',
+          category: 'riego',
+          time: 'Hoy · 07:04',
+          title: 'Fuga detectada A-12',
+          detail: 'Consumo anómalo de agua en el sector 3 del Jardín del Turia.',
+          badge: 'Riego',
+          unread: true,
+          targetTab: 'detections'
+        },
+        {
+          id: 'n-2',
+          category: 'replantar',
+          time: 'Hoy · 07:02',
+          title: 'Nueva calva de 4 m² en zona B-3',
+          detail: 'El asistente sugiere replantar con Lippia nodiflora, tapizante y de poco riego.',
+          badge: 'Replantar',
+          unread: true,
+          targetTab: 'assistant'
+        },
+        {
+          id: 'n-3',
+          category: 'sistema',
+          time: 'Hoy · 07:00',
+          title: 'Pasada 360° completada',
+          detail: '24 sensores · 12,4 ha analizadas. Resumen diario disponible cada día a las 08:00 tras la pasada 360°.',
+          badge: 'Pasada 360°',
+          unread: true,
+          targetTab: 'home'
+        },
+        {
+          id: 'n-4',
+          category: 'sistema',
+          time: 'Hoy · 08:00',
+          title: 'Resumen diario de las 08:00',
+          detail: 'Índice de salud verde en 82 (+3 esta semana) con privacidad cenital sin rostros ni personas.',
+          badge: 'Resumen 08:00',
+          unread: false,
+          targetTab: 'home'
+        },
+        {
+          id: 'n-5',
+          category: 'sistema',
+          time: 'Noviembre · Temporada',
+          title: 'Consejo de temporada',
+          detail: 'Noviembre en Valencia: buen momento para bulbos de primavera (tulipanes, narcisos, jacintos) y plantas de bajo riego como lavanda, caléndula y pensamientos.',
+          badge: 'Consejo',
+          unread: false,
+          targetTab: 'assistant'
+        }
+      ]
+    };
+
+    // =========================================================================
+    // HELPERS
+    // =========================================================================
+    let toastTimeoutId = null;
+    function showToast(msg) {
+      const banner = document.getElementById('verdea-toast-banner');
+      document.getElementById('verdea-toast-message').textContent = msg;
+      banner.classList.remove('opacity-0', '-translate-y-2');
+      banner.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(toastTimeoutId);
+      toastTimeoutId = setTimeout(() => {
+        banner.classList.remove('opacity-100', 'translate-y-0');
+        banner.classList.add('opacity-0', '-translate-y-2');
+      }, 2400);
+    }
+
+    function currentDataset() {
+      return verdeaApp.dataByProfile[verdeaApp.profile];
+    }
+
+    function activeDetections() {
+      return currentDataset().detections.filter(d => d.status === 'active');
+    }
+
+    function unreadNoticesCount() {
+      return verdeaApp.todayNotifications.filter(n => n.unread).length;
+    }
+
+    // =========================================================================
+    // NAVEGACIÓN Y PERFILES
+    // =========================================================================
+    function selectTab(tabName) {
+      verdeaApp.activeTab = tabName;
+      const tabs = ['home', 'map', 'detections', 'assistant', 'tips', 'today'];
+      tabs.forEach(t => {
+        const sec = document.getElementById(`tab-view-${t}`);
+        if (sec) {
+          if (t === tabName) sec.classList.remove('hidden');
+          else sec.classList.add('hidden');
+        }
+      });
+
+      document.querySelectorAll('.bottom-nav-tab').forEach(btn => {
+        const isSelected = btn.getAttribute('data-tab-btn') === tabName;
+        if (isSelected) {
+          btn.className = 'bottom-nav-tab flex flex-col items-center justify-center py-1 rounded-xl bg-niebla text-bosque font-bold transition-colors cursor-pointer';
+        } else {
+          btn.className = 'bottom-nav-tab flex flex-col items-center justify-center py-1 rounded-xl text-bosque/60 hover:text-bosque font-medium transition-colors cursor-pointer';
+        }
+      });
+
+      document.getElementById('verdea-main-scroll').scrollTop = 0;
+      renderAll();
+    }
+
+    function setProfileMode(mode) {
+      verdeaApp.profile = mode;
+      const firstActive = activeDetections()[0] || currentDataset().detections[0];
+      if (firstActive) verdeaApp.selectedPinId = firstActive.id;
+      showToast(mode === 'municipal' ? 'Perfil Ayuntamiento seleccionado' : 'Perfil Particular seleccionado');
+      renderAll();
+    }
+
+    // =========================================================================
+    // RENDERIZADO GENERAL
+    // =========================================================================
+    function renderAll() {
+      renderBadges();
+      renderHomeTab();
+      renderMapTab();
+      renderDetectionsTab();
+      renderAssistantTab();
+      renderTipsTab();
+      renderTodayTab();
+    }
+
+    function renderBadges() {
+      const muniBtn = document.getElementById('hdr-btn-municipal');
+      const privBtn = document.getElementById('hdr-btn-private');
+      if (verdeaApp.profile === 'municipal') {
+        muniBtn.className = 'px-2.5 py-1 rounded-[9px] bg-brote text-bosque font-bold transition-all cursor-pointer';
+        privBtn.className = 'px-2.5 py-1 rounded-[9px] text-white/75 hover:text-white transition-all cursor-pointer';
+      } else {
+        privBtn.className = 'px-2.5 py-1 rounded-[9px] bg-brote text-bosque font-bold transition-all cursor-pointer';
+        muniBtn.className = 'px-2.5 py-1 rounded-[9px] text-white/75 hover:text-white transition-all cursor-pointer';
+      }
+
+      const detCount = activeDetections().length;
+      const detBadge = document.getElementById('nav-det-badge');
+      if (detCount > 0) {
+        detBadge.textContent = detCount;
+        detBadge.classList.remove('hidden');
+      } else {
+        detBadge.classList.add('hidden');
+      }
+
+      const unreadCount = unreadNoticesCount();
+      const todayBadge = document.getElementById('nav-today-unread-badge');
+      if (unreadCount > 0) {
+        todayBadge.textContent = unreadCount;
+        todayBadge.classList.remove('hidden');
+      } else {
+        todayBadge.classList.add('hidden');
+      }
+    }
+
+    // 1. INICIO
+    function renderHomeTab() {
+      const data = currentDataset();
+      const actives = activeDetections();
+
+      document.getElementById('home-pass-text').textContent = data.passInfo;
+      document.getElementById('home-context-badge').textContent = data.contextTitle;
+
+      const cardMuni = document.getElementById('card-mode-municipal');
+      const cardPriv = document.getElementById('card-mode-private');
+      if (verdeaApp.profile === 'municipal') {
+        cardMuni.className = 'verdea-pill-active py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer';
+        cardPriv.className = 'py-2 px-3 rounded-xl text-xs font-semibold text-bosque/75 hover:text-bosque flex items-center justify-center gap-1.5 transition-all cursor-pointer';
+      } else {
+        cardPriv.className = 'verdea-pill-active py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer';
+        cardMuni.className = 'py-2 px-3 rounded-xl text-xs font-semibold text-bosque/75 hover:text-bosque flex items-center justify-center gap-1.5 transition-all cursor-pointer';
+      }
+
+      const circ = 2 * Math.PI * 38;
+      const offset = circ - (data.healthScore / 100) * circ;
+      document.getElementById('health-ring').setAttribute('stroke-dashoffset', offset.toFixed(1));
+      document.getElementById('health-score-num').textContent = data.healthScore;
+      document.getElementById('health-status-label').textContent = data.healthTrend;
+
+      document.getElementById('home-week-bars').innerHTML = data.weekBars.map((val, idx) => {
+        const isThu = idx === 3;
+        return `
+          <div class="h-full flex items-end justify-center">
+            <div style="height: ${Math.max(18, val)}%" title="${val}"
+              class="w-full max-w-[28px] rounded-xl transition-all ${isThu ? 'bg-bosque' : 'bg-hoja/25'}"></div>
+          </div>
+        `;
+      }).join('');
+
+      const metrics = data.metrics.map(m =>
+        m.key === 'detections' ? { ...m, value: String(actives.length) } : m
+      );
+
+      document.getElementById('home-metrics-grid').innerHTML = metrics.map(m => `
+        <div class="verdea-card rounded-2xl p-3.5 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-display text-xl font-bold text-bosque tracking-tight">${m.value}</span>
+            <span class="w-2 h-2 rounded-full ${m.key === 'detections' && actives.length > 0 ? 'bg-alerta' : 'bg-hoja'}"></span>
+          </div>
+          <p class="text-[11px] font-medium text-bosque/70 leading-snug">${m.label}</p>
+        </div>
+      `).join('');
+
+      document.getElementById('home-prio-badge').textContent = actives.length;
+      const prioBox = document.getElementById('home-priorities-container');
+
+      if (actives.length === 0) {
+        prioBox.innerHTML = `
+          <div class="p-3 rounded-2xl bg-niebla text-xs text-bosque/75 font-medium text-center">
+            No hay prioridades pendientes hoy.
+          </div>
+        `;
+        return;
+      }
+
+      const top = actives[0];
+      const next = actives[1];
+      prioBox.innerHTML = `
+        <div class="p-3.5 rounded-2xl bg-niebla border border-bosque/12 space-y-2.5">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-alerta text-white">Alta</span>
+                <span class="text-[11px] text-bosque/60 font-medium">${top.when}</span>
+              </div>
+              <p class="font-display text-sm font-bold text-bosque">${top.title}</p>
+              <p class="text-xs text-bosque/75">${top.place}</p>
+            </div>
+            <span class="font-display text-xs font-bold bg-bosque text-white px-2 py-1 rounded-lg shrink-0">
+              IA ${top.iaPct}%
+            </span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 pt-0.5">
+            <button type="button" onclick="openMapsLink('${top.mapsQuery}', '${top.title.replace(/'/g, "\\'")}')"
+              class="py-2 px-2.5 rounded-xl bg-white hover:bg-[#EAF0E7] border border-bosque/15 text-bosque text-[11px] font-semibold cursor-pointer">
+              Google Maps
+            </button>
+            <button type="button" onclick="openDetectionModal('${top.id}')"
+              class="py-2 px-2.5 rounded-xl bg-hoja hover:bg-bosque text-white text-[11px] font-semibold cursor-pointer">
+              Ver detalle
+            </button>
+          </div>
+        </div>
+        ${next ? `
+          <button type="button" onclick="openDetectionModal('${next.id}')"
+            class="w-full text-left px-3.5 py-2.5 rounded-2xl bg-white hover:bg-niebla/70 border border-bosque/10 flex items-center justify-between gap-2 cursor-pointer">
+            <div class="min-w-0">
+              <p class="text-xs font-bold text-bosque truncate">${next.title}</p>
+              <p class="text-[11px] text-bosque/65 truncate">${next.place} · ${next.actionText}</p>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-hoja/12 text-hoja shrink-0">IA ${next.iaPct}%</span>
+          </button>
+        ` : ''}
+      `;
+    }
+
+    // 2. MAPA
+    function setMapCategory(cat) {
+      verdeaApp.mapCategory = cat;
+      renderMapTab();
+    }
+
+    function pickMapPin(id) {
+      verdeaApp.selectedPinId = id;
+      renderMapTab();
+    }
+
+    function renderMapTab() {
+      const data = currentDataset();
+      const actives = data.detections.filter(d => d.status === 'active');
+      const list = verdeaApp.mapCategory === 'all'
+        ? actives
+        : actives.filter(d => d.category === verdeaApp.mapCategory);
+
+      const sensorTotal = verdeaApp.profile === 'municipal' ? 24 : 3;
+      document.getElementById('map-summary-text').textContent =
+        `${list.length} detecciones · ${sensorTotal} sensores`;
+
+      document.querySelectorAll('.map-cat-btn').forEach(btn => {
+        const c = btn.getAttribute('data-map-cat');
+        if (c === verdeaApp.mapCategory) {
+          btn.className = 'map-cat-btn verdea-pill-active shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold cursor-pointer';
+        } else {
+          btn.className = 'map-cat-btn shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white text-bosque/80 border border-bosque/12 hover:bg-niebla cursor-pointer';
+        }
+      });
+
+      const pinsLayer = document.getElementById('map-pins-layer');
+      pinsLayer.innerHTML = list.slice(0, 4).map(item => {
+        const isActive = item.id === verdeaApp.selectedPinId;
+        const isHigh = item.priority === 'alta';
+        return `
+          <button type="button" onclick="pickMapPin('${item.id}')"
+            style="left: ${item.pos.x}%; top: ${item.pos.y}%;"
+            class="-translate-x-1/2 -translate-y-1/2 absolute flex items-center justify-center z-10 cursor-pointer focus:outline-none">
+            ${isActive ? `<span class="w-8 h-8 rounded-full ${isHigh ? 'bg-alerta' : 'bg-hoja'} marker-ping absolute"></span>` : ''}
+            <span class="relative w-7 h-7 rounded-full ${isHigh ? 'bg-alerta' : 'bg-hoja'} text-white font-display text-xs font-bold flex items-center justify-center shadow-md border-2 ${isActive ? 'border-white scale-110 ring-2 ring-bosque' : 'border-white/90'}">
+              ${item.num}
+            </span>
+          </button>
+        `;
+      }).join('');
+
+      let chosen = list.find(d => d.id === verdeaApp.selectedPinId) || list[0] || actives[0];
+      if (chosen) verdeaApp.selectedPinId = chosen.id;
+
+      const card = document.getElementById('map-active-card');
+      if (!chosen) {
+        card.innerHTML = `<p class="text-xs text-bosque/75">No hay incidencias activas para este filtro.</p>`;
+        return;
+      }
+
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <span class="inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+              chosen.priority === 'alta' ? 'bg-alerta/15 text-alerta' : 'bg-hoja/15 text-hoja'
+            }">
+              ${chosen.priorityTag} #${chosen.num}
+            </span>
+            <h3 class="font-display text-base font-bold text-bosque mt-1">${chosen.title}</h3>
+            <p class="text-xs text-bosque/75">${chosen.place} · <span class="text-bosque/55">${chosen.when}</span></p>
+          </div>
+          <span class="font-display text-xs font-bold bg-bosque text-white px-2 py-1 rounded-lg shrink-0">
+            IA ${chosen.iaPct}%
+          </span>
+        </div>
+        <p class="text-xs text-bosque/85 bg-niebla p-2.5 rounded-xl border border-bosque/10">
+          <strong>Recomendación:</strong> ${chosen.actionText}
+        </p>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="openMapsLink('${chosen.mapsQuery}', '${chosen.title.replace(/'/g, "\\'")}')"
+            class="py-2.5 px-3 rounded-xl bg-niebla hover:bg-[#E5EEE1] border border-bosque/15 text-bosque text-xs font-semibold cursor-pointer">
+            Abrir en Google Maps
+          </button>
+          <button type="button" onclick="openDetectionModal('${chosen.id}')"
+            class="py-2.5 px-3 rounded-xl bg-hoja hover:bg-bosque text-white text-xs font-semibold cursor-pointer">
+            Detalle
+          </button>
+        </div>
+      `;
+    }
+
+    function openMapsLink(query, title) {
+      window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, '_blank', 'noopener,noreferrer');
+      showToast(`Abriendo ubicación: ${title}`);
+    }
+
+    // 3. DETECCIONES
+    function setDetectionPeriod(period) {
+      verdeaApp.detectionPeriod = period;
+      verdeaApp.showingResolved = false;
+      renderDetectionsTab();
+    }
+
+    function toggleDetectionResolvedTab() {
+      verdeaApp.showingResolved = !verdeaApp.showingResolved;
+      renderDetectionsTab();
+    }
+
+    function zenithThumbSvg(type) {
+      if (type === 'leak') {
+        return `<svg viewBox="0 0 84 84" class="w-full h-full block"><rect width="84" height="84" rx="14" fill="#77AD72"/><circle cx="42" cy="42" r="23" fill="#4E8B52"/><circle cx="42" cy="42" r="10" fill="#6DA4D4"/></svg>`;
+      }
+      if (type === 'bare') {
+        return `<svg viewBox="0 0 84 84" class="w-full h-full block"><rect width="84" height="84" rx="14" fill="#7AB075"/><circle cx="44" cy="44" r="25" fill="#8CC17F"/><circle cx="42" cy="42" r="13" fill="#9E7349"/></svg>`;
+      }
+      if (type === 'dry') {
+        return `<svg viewBox="0 0 84 84" class="w-full h-full block"><rect width="84" height="84" rx="14" fill="#79AF74"/><circle cx="42" cy="42" r="24" fill="#98C67E"/><circle cx="42" cy="42" r="12" fill="#CFA35A"/></svg>`;
+      }
+      if (type === 'pest') {
+        return `<svg viewBox="0 0 84 84" class="w-full h-full block"><rect width="84" height="84" rx="14" fill="#4B8848"/><circle cx="29" cy="29" r="10" fill="#C4B956"/><circle cx="55" cy="52" r="10" fill="#C4B956"/></svg>`;
+      }
+      return `<svg viewBox="0 0 84 84" class="w-full h-full block"><rect width="84" height="84" rx="14" fill="#82B679"/><circle cx="44" cy="46" r="23" fill="#4E8A49"/><circle cx="44" cy="46" r="11" fill="#B5AE55"/></svg>`;
+    }
+
+    function renderDetectionsTab() {
+      const data = currentDataset();
+      const resolvedList = data.detections.filter(d => d.status === 'resolved');
+      document.getElementById('det-resolved-count').textContent = resolvedList.length;
+
+      let items = [];
+      if (verdeaApp.showingResolved) {
+        items = resolvedList;
+        document.getElementById('detections-sub-label').textContent = `Resueltas · ${items.length}`;
+      } else {
+        const actives = data.detections.filter(d => d.status === 'active');
+        if (verdeaApp.detectionPeriod === 'today') {
+          items = actives.filter(d => d.period === 'today');
+          document.getElementById('detections-sub-label').textContent = `Hoy · ${items.length} ${items.length === 1 ? 'nueva' : 'nuevas'}`;
+        } else {
+          items = actives;
+          document.getElementById('detections-sub-label').textContent = `7 días · ${items.length} detecciones`;
+        }
+      }
+
+      const bToday = document.getElementById('det-btn-today');
+      const b7d = document.getElementById('det-btn-7d');
+      const bRes = document.getElementById('det-btn-resolved');
+
+      if (!verdeaApp.showingResolved && verdeaApp.detectionPeriod === 'today') {
+        bToday.className = 'px-3 py-1.5 rounded-lg bg-bosque text-white font-bold cursor-pointer';
+        b7d.className = 'px-3 py-1.5 rounded-lg text-bosque/75 hover:text-bosque cursor-pointer';
+      } else if (!verdeaApp.showingResolved && verdeaApp.detectionPeriod === '7d') {
+        b7d.className = 'px-3 py-1.5 rounded-lg bg-bosque text-white font-bold cursor-pointer';
+        bToday.className = 'px-3 py-1.5 rounded-lg text-bosque/75 hover:text-bosque cursor-pointer';
+      } else {
+        bToday.className = 'px-3 py-1.5 rounded-lg text-bosque/65 hover:text-bosque cursor-pointer';
+        b7d.className = 'px-3 py-1.5 rounded-lg text-bosque/65 hover:text-bosque cursor-pointer';
+      }
+
+      bRes.className = verdeaApp.showingResolved
+        ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-hoja text-white border border-hoja flex items-center gap-1.5 cursor-pointer'
+        : 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-bosque border border-bosque/12 hover:bg-niebla flex items-center gap-1.5 cursor-pointer';
+
+      const container = document.getElementById('detections-cards-list');
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="verdea-card rounded-3xl p-6 text-center space-y-1">
+            <p class="font-display text-sm font-bold text-bosque">
+              ${verdeaApp.showingResolved ? 'Sin detecciones resueltas todavía' : 'No hay detecciones en este filtro'}
+            </p>
+            <p class="text-xs text-bosque/65">
+              ${verdeaApp.showingResolved ? 'Abre una detección y pulsa "Resolver" para moverla aquí.' : 'Cambia entre Hoy y 7 días para consultar otras incidencias.'}
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = items.map(item => {
+        const tagColor = item.priority === 'alta' ? 'text-alerta' : item.priority === 'media' ? 'text-hoja' : 'text-bosque/65';
+        return `
+          <button type="button" onclick="openDetectionModal('${item.id}')"
+            class="w-full text-left verdea-card hover:border-hoja/45 rounded-3xl p-3 flex items-center gap-3 transition-all cursor-pointer">
+            <div class="relative w-20 h-20 rounded-2xl overflow-hidden shrink-0 border border-bosque/10">
+              ${zenithThumbSvg(item.thumbType)}
+              <span class="font-display absolute bottom-1.5 left-1.5 bg-bosque/90 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md leading-none">
+                IA ${item.iaPct}%
+              </span>
+            </div>
+            <div class="min-w-0 flex-1 space-y-0.5">
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider ${tagColor}">
+                  ${item.status === 'resolved' ? 'RESUELTA' : item.priorityTag}
+                </span>
+                <span class="text-[10px] text-bosque/55 font-medium">${item.when}</span>
+              </div>
+              <h3 class="font-display text-sm font-bold text-bosque truncate">${item.title}</h3>
+              <p class="text-[11px] text-bosque/70 truncate">${item.place}</p>
+              <p class="text-xs font-medium text-hoja pt-0.5 leading-snug">${item.actionText}</p>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    // MODAL DETECCIÓN (Resolver o Crear tarea)
+    function openDetectionModal(id) {
+      const item = currentDataset().detections.find(d => d.id === id);
+      if (!item) return;
+
+      const isResolved = item.status === 'resolved';
+      const modalCard = document.getElementById('verdea-modal-card');
+      modalCard.innerHTML = `
+        <div class="w-10 h-1.5 bg-bosque/20 rounded-full mx-auto"></div>
+        <div class="flex items-start gap-3">
+          <div class="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-bosque/12">
+            ${zenithThumbSvg(item.thumbType)}
+            <span class="font-display absolute bottom-1 left-1 bg-bosque/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded leading-none">
+              IA ${item.iaPct}%
+            </span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+              isResolved ? 'bg-hoja/15 text-hoja' : item.priority === 'alta' ? 'bg-alerta/15 text-alerta' : 'bg-hoja/12 text-hoja'
+            }">
+              ${isResolved ? 'Resuelta' : item.priorityTag}
+            </span>
+            <h3 class="font-display text-base font-bold text-bosque mt-1 leading-snug">${item.title}</h3>
+            <p class="text-xs text-bosque/70">${item.place} · ${item.when}</p>
+          </div>
+          <button type="button" onclick="closeDetectionModal()" aria-label="Cerrar modal"
+            class="w-8 h-8 rounded-xl bg-niebla hover:bg-[#E5EEE1] text-bosque font-bold text-xs flex items-center justify-center shrink-0 cursor-pointer">
+            ✕
+          </button>
+        </div>
+
+        <div class="bg-niebla rounded-2xl p-3.5 border border-bosque/10 space-y-1">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-hoja">Recomendación</p>
+          <p class="text-sm font-semibold text-bosque">${item.actionText}</p>
+          <p class="text-xs text-bosque/75 leading-relaxed pt-1">${item.notes}</p>
+        </div>
+
+        <div class="space-y-2">
+          ${!isResolved ? `
+            <button type="button" onclick="resolveDetectionItem('${item.id}')"
+              class="w-full py-3 px-4 rounded-2xl bg-hoja hover:bg-bosque text-white font-display font-bold text-sm cursor-pointer">
+              Resolver incidencia
+            </button>
+          ` : ''}
+          <button type="button" onclick="createTaskFromModal('${item.id}')"
+            class="w-full py-2.5 px-4 rounded-2xl bg-niebla hover:bg-[#E5EEE1] border border-bosque/15 text-bosque text-xs font-bold cursor-pointer">
+            + Crear tarea
+          </button>
+        </div>
+      `;
+
+      document.getElementById('verdea-modal-overlay').classList.remove('hidden');
+    }
+
+    function closeDetectionModal() {
+      document.getElementById('verdea-modal-overlay').classList.add('hidden');
+    }
+
+    function handleModalBackdropClick(event) {
+      if (event.target.id === 'verdea-modal-overlay') {
+        closeDetectionModal();
+      }
+    }
+
+    function resolveDetectionItem(id) {
+      const data = currentDataset();
+      const item = data.detections.find(d => d.id === id);
+      if (!item) return;
+      item.status = 'resolved';
+      item.when = 'resuelta hoy';
+      data.healthScore = Math.min(98, data.healthScore + 1);
+      const next = activeDetections()[0];
+      if (next) verdeaApp.selectedPinId = next.id;
+      closeDetectionModal();
+      showToast(`Incidencia resuelta: ${item.title}`);
+      renderAll();
+    }
+
+    function createTaskFromModal(id) {
+      const item = currentDataset().detections.find(d => d.id === id);
+      if (!item) return;
+      verdeaApp.createdTasks.push({ id: item.id, title: `${item.actionText} (${item.place})` });
+      closeDetectionModal();
+      showToast(`Tarea creada: ${item.actionText}`);
+    }
+
+    // 4. ASISTENTE
+    function formatMultiline(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>');
+    }
+
+    function renderAssistantTab() {
+      const container = document.getElementById('assistant-chat-thread');
+      container.innerHTML = verdeaApp.chatMessages.map(m => {
+        if (m.sender === 'user') {
+          return `
+            <div class="flex justify-end">
+              <div class="max-w-[84%] bg-bosque text-white px-3.5 py-2.5 rounded-2xl rounded-br-xs text-xs leading-relaxed">
+                ${formatMultiline(m.text)}
+              </div>
+            </div>
+          `;
+        }
+
+        const taskDone = m.taskAction && verdeaApp.createdTasks.some(t => t.id === m.taskAction.id);
+        const btnHtml = m.taskAction
+          ? `<div class="mt-2.5 pt-2 border-t border-bosque/10">
+              <button type="button" onclick="createAssistantTask('${m.taskAction.id}')"
+                class="px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  taskDone
+                    ? 'bg-niebla text-hoja border border-hoja/30'
+                    : 'bg-brote hover:bg-[#7BB432] text-bosque'
+                }">
+                ${taskDone ? '✓ Tarea de replantado creada' : m.taskAction.label}
+              </button>
+            </div>`
+          : '';
+
+        return `
+          <div class="flex items-start gap-2">
+            <div class="w-7 h-7 rounded-xl bg-hoja text-white font-display font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+              V
+            </div>
+            <div class="max-w-[85%] bg-white border border-bosque/12 text-bosque px-3.5 py-2.5 rounded-2xl rounded-tl-xs text-xs leading-relaxed">
+              <div>${formatMultiline(m.text)}</div>
+              ${btnHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function createAssistantTask(taskActionId) {
+      for (const m of verdeaApp.chatMessages) {
+        if (m.taskAction && m.taskAction.id === taskActionId) {
+          const exists = verdeaApp.createdTasks.some(t => t.id === taskActionId);
+          if (!exists) {
+            verdeaApp.createdTasks.push({ id: taskActionId, title: m.taskAction.taskTitle });
+            verdeaApp.chatMessages.push({
+              sender: 'bot',
+              text: `He creado la tarea: "${m.taskAction.taskTitle}" (Lippia nodiflora · tapizante, pisable y de poco riego).`,
+              taskAction: null
+            });
+            showToast('Tarea de replantado creada');
+          } else {
+            showToast('La tarea ya estaba creada');
+          }
+          break;
+        }
+      }
+      renderAssistantTab();
+    }
+
+    function askAssistant(promptText) {
+      selectTab('assistant');
+      const input = document.getElementById('assistant-text-input');
+      if (input) input.value = '';
+      submitAssistantQuery(promptText);
+    }
+
+    function handleAssistantForm(event) {
+      event.preventDefault();
+      const input = document.getElementById('assistant-text-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      submitAssistantQuery(text);
+    }
+
+    function simulateVoicePrompt() {
+      const sample = '¿Qué riego recomiendas hoy para el césped y las zonas soleadas?';
+      submitAssistantQuery(sample);
+      showToast('Consulta por voz transcrita');
+    }
+
+    function submitAssistantQuery(text) {
+      verdeaApp.chatMessages.push({ sender: 'user', text });
+      const q = text.toLowerCase();
+
+      let replyText = 'Según la pasada cenital de las 07:00, la humedad media del suelo es del 31%. Conviene revisar la fuga en el aspersor A-12 y priorizar especies tapizantes de bajo riego como Lippia nodiflora en zonas transitadas.';
+      let taskAction = null;
+
+      if (q.includes('b-3') || q.includes('calva') || q.includes('lippia')) {
+        replyText = 'Para 4 m² con mucho tránsito en la zona B-3, te propongo Lippia nodiflora: tapizante, pisable y de poco riego.\n\n¿Creo la tarea de replantado?';
+        taskAction = {
+          id: 'task-b3-lippia',
+          label: 'Crear tarea de replantado',
+          taskTitle: 'Replantar 4 m² en zona B-3 con Lippia nodiflora'
+        };
+      } else if (q.includes('balcón') || q.includes('noviembre') || q.includes('bulbo')) {
+        replyText = 'En noviembre con buena orientación solar funcionan muy bien:\n• Bulbos de primavera: tulipanes, narcisos y jacintos\n• Lavanda aromática, caléndula y pensamientos\n\nRiega solo cuando el sustrato esté seco.';
+      }
+
+      verdeaApp.chatMessages.push({
+        sender: 'bot',
+        text: replyText,
+        taskAction
+      });
+      renderAssistantTab();
+      const scrollEl = document.getElementById('verdea-main-scroll');
+      setTimeout(() => {
+        scrollEl.scrollTop = scrollEl.scrollHeight;
+      }, 40);
+    }
+
+    // 5. CONSEJOS Y NOTICIAS
+    function openTipGuide(guideId) {
+      verdeaApp.openTipId = verdeaApp.openTipId === guideId ? null : guideId;
+      renderTipsTab();
+      if (verdeaApp.openTipId) {
+        const panel = document.getElementById('tip-reader-panel');
+        setTimeout(() => {
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 40);
+      }
+    }
+
+    function renderTipsTab() {
+      const listEl = document.getElementById('tips-guides-list');
+      const readerEl = document.getElementById('tip-reader-panel');
+      if (!listEl || !readerEl) return;
+
+      listEl.innerHTML = verdeaApp.guides.map(g => {
+        const isOpen = verdeaApp.openTipId === g.id;
+        return `
+          <div class="verdea-card rounded-3xl p-4 space-y-2 transition-all ${isOpen ? 'ring-2 ring-hoja/35' : ''}">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-niebla text-hoja">
+                ${g.category}
+              </span>
+              <span class="text-[11px] font-medium text-bosque/60">${g.readTime}</span>
+            </div>
+            <h3 class="font-display text-sm font-bold text-bosque leading-snug">${g.title}</h3>
+            <p class="text-xs text-bosque/75 leading-relaxed">${g.summary}</p>
+            <div class="pt-1 flex items-center justify-between">
+              <button type="button" onclick="openTipGuide('${g.id}')"
+                class="text-xs font-bold text-hoja hover:text-bosque cursor-pointer">
+                ${isOpen ? 'Ocultar lectura ↑' : 'Leer guía ↓'}
+              </button>
+            </div>
+            ${isOpen ? `
+              <div class="mt-2 pt-2.5 border-t border-bosque/10 text-xs text-bosque/85 leading-relaxed bg-niebla/70 p-3 rounded-2xl">
+                ${g.body}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      const activeGuide = verdeaApp.guides.find(g => g.id === verdeaApp.openTipId);
+      if (!activeGuide) {
+        readerEl.classList.add('hidden');
+        readerEl.innerHTML = '';
+        return;
+      }
+
+      readerEl.classList.remove('hidden');
+      readerEl.innerHTML = `
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-hoja text-white">
+            Lector · ${activeGuide.readTime}
+          </span>
+          <button type="button" onclick="openTipGuide('${activeGuide.id}')"
+            class="text-xs font-bold text-bosque/70 hover:text-bosque cursor-pointer">
+            Cerrar ✕
+          </button>
+        </div>
+        <h3 class="font-display text-base font-bold text-bosque">${activeGuide.title}</h3>
+        <p class="text-xs text-bosque/85 leading-relaxed">${activeGuide.body}</p>
+      `;
+    }
+
+    // 6. HOY (Notificaciones exclusivas del día)
+    function renderTodayTab() {
+      const unread = unreadNoticesCount();
+      const statusEl = document.getElementById('today-notices-status');
+      if (statusEl) {
+        statusEl.textContent = unread > 0
+          ? `${unread} ${unread === 1 ? 'sin leer' : 'sin leer'} · Notificaciones del día`
+          : 'Todas leídas · Notificaciones del día';
+        statusEl.className = unread > 0
+          ? 'text-xs font-semibold text-alerta mt-0.5'
+          : 'text-xs font-semibold text-hoja mt-0.5';
+      }
+
+      const container = document.getElementById('today-notifications-list');
+      if (!container) return;
+
+      container.innerHTML = verdeaApp.todayNotifications.map(n => `
+        <button type="button" onclick="openTodayNotice('${n.id}')"
+          class="w-full text-left verdea-card hover:border-hoja/45 rounded-2xl p-3.5 flex items-start gap-3 transition-all cursor-pointer ${
+            n.unread ? 'ring-1 ring-brote/50 bg-[#FCFEFB]' : 'opacity-85'
+          }">
+          <span class="w-2.5 h-2.5 rounded-full mt-1.5 shrink-0 ${n.unread ? 'bg-alerta' : 'bg-hoja/35'}"></span>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-niebla text-hoja">
+                ${n.badge}
+              </span>
+              <span class="font-display text-xs font-bold text-bosque/75">${n.time}</span>
+            </div>
+            <h3 class="font-display text-sm font-bold text-bosque mt-1">${n.title}</h3>
+            <p class="text-xs text-bosque/75 leading-snug mt-0.5">${n.detail}</p>
+          </div>
+        </button>
+      `).join('');
+    }
+
+    function openTodayNotice(id) {
+      const item = verdeaApp.todayNotifications.find(n => n.id === id);
+      if (!item) return;
+      item.unread = false;
+      renderBadges();
+      selectTab(item.targetTab || 'home');
+      showToast(`Aviso de hoy (${item.time}): ${item.title}`);
+    }
+
+    function markAllTodayNoticesRead() {
+      verdeaApp.todayNotifications.forEach(n => { n.unread = false; });
+      renderBadges();
+      renderTodayTab();
+      showToast('Notificaciones de hoy marcadas como leídas');
+    }
+
+    // Reloj de barra superior
+    function refreshClock() {
+      const now = new Date();
+      document.getElementById('status-clock').textContent =
+        `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      refreshClock();
+      setInterval(refreshClock, 20000);
+      selectTab('home');
+    });
+  </script>
+</body>
+</html>
